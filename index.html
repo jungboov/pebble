@@ -96,7 +96,7 @@
         }
 
         .logo-img {
-            height: 56px;
+            height: 112px;
             width: auto;
             transition: transform 0.3s ease;
         }
@@ -359,11 +359,15 @@
             background: var(--bg-card);
             border-radius: var(--radius-lg);
             padding: 32px;
-            box-shadow: var(--shadow-soft);
+            box-shadow: 
+                0 4px 20px rgba(61, 61, 61, 0.08),
+                0 0 0 1px rgba(143, 166, 143, 0.1);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             position: relative;
             overflow: hidden;
+            transform-style: preserve-3d;
+            perspective: 1000px;
         }
 
         .app-card::before {
@@ -373,10 +377,31 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: var(--card-accent);
+            background: linear-gradient(90deg, var(--card-accent), color-mix(in srgb, var(--card-accent) 60%, white));
             transform: scaleX(0);
             transform-origin: left;
             transition: transform 0.4s ease;
+        }
+
+        .app-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(
+                800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                rgba(143, 166, 143, 0.06),
+                transparent 40%
+            );
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        .app-card:hover::after {
+            opacity: 1;
         }
 
         .app-card:hover::before {
@@ -384,8 +409,39 @@
         }
 
         .app-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-hover);
+            transform: translateY(-12px) rotateX(2deg);
+            box-shadow: 
+                0 20px 40px rgba(61, 61, 61, 0.15),
+                0 0 0 1px rgba(143, 166, 143, 0.2),
+                0 0 60px rgba(143, 166, 143, 0.1);
+        }
+
+        .app-card .card-glow {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                from 0deg,
+                transparent,
+                var(--card-accent),
+                transparent 30%
+            );
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            animation: rotate 4s linear infinite paused;
+            pointer-events: none;
+        }
+
+        .app-card:hover .card-glow {
+            opacity: 0.1;
+            animation-play-state: running;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         .app-card[data-app="tap-mouse"] { --card-accent: var(--accent-sage); }
@@ -393,6 +449,7 @@
         .app-card[data-app="clock"] { --card-accent: var(--accent-sage-dark); }
         .app-card[data-app="screen"] { --card-accent: var(--accent-sage); }
         .app-card[data-app="cal"] { --card-accent: var(--accent-sage-light); }
+        .app-card[data-app="alarm"] { --card-accent: var(--accent-sage-dark); }
 
         .app-icon {
             width: 64px;
@@ -403,7 +460,30 @@
             justify-content: center;
             margin-bottom: 20px;
             background: linear-gradient(135deg, var(--card-accent), color-mix(in srgb, var(--card-accent) 70%, white));
-            box-shadow: 0 4px 12px color-mix(in srgb, var(--card-accent) 30%, transparent);
+            box-shadow: 
+                0 4px 12px color-mix(in srgb, var(--card-accent) 30%, transparent),
+                inset 0 1px 1px rgba(255,255,255,0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .app-card:hover .app-icon {
+            transform: scale(1.1) rotate(-5deg);
+            box-shadow: 
+                0 8px 24px color-mix(in srgb, var(--card-accent) 40%, transparent),
+                inset 0 1px 1px rgba(255,255,255,0.4);
+        }
+
+        .app-icon::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            height: 50%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent);
+            border-radius: var(--radius-sm) var(--radius-sm) 50% 50%;
+            pointer-events: none;
         }
 
         .app-icon svg {
@@ -447,12 +527,22 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            transition: all 0.3s ease;
         }
 
         .platform-badge svg {
             width: 14px;
             height: 14px;
             fill: currentColor;
+            transition: transform 0.3s ease;
+        }
+
+        .app-card:hover .platform-badge {
+            background: color-mix(in srgb, var(--card-accent) 15%, var(--bg-secondary));
+        }
+
+        .app-card:hover .platform-badge svg {
+            transform: scale(1.1);
         }
 
         /* Features Section */
@@ -524,7 +614,7 @@
         }
 
         .footer-logo-img {
-            height: 44px;
+            height: 88px;
             width: auto;
         }
 
@@ -595,6 +685,7 @@
         .app-card:nth-child(3) { animation-delay: 0.3s; }
         .app-card:nth-child(4) { animation-delay: 0.4s; }
         .app-card:nth-child(5) { animation-delay: 0.5s; }
+        .app-card:nth-child(6) { animation-delay: 0.6s; }
 
         @keyframes cardReveal {
             to {
@@ -792,6 +883,36 @@
                     </span>
                 </div>
             </div>
+
+            <!-- Pebble Alarm -->
+            <div class="app-card" data-app="alarm">
+                <div class="app-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M22 5.72l-4.6-3.86-1.29 1.53 4.6 3.86L22 5.72zM7.88 3.39L6.6 1.86 2 5.71l1.29 1.53 4.59-3.85zM12 4c-4.97 0-9 4.03-9 9s4.02 9 9 9c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7zm1-11h-2v5l4.28 2.54.72-1.21-3-1.78V9z"/>
+                    </svg>
+                </div>
+                <h3>pebble alarm</h3>
+                <p class="app-subtitle" data-i18n="alarm-subtitle">알람 & 타이머</p>
+                <p data-i18n="alarm-desc">알람시계, 스톱워치, 타이머, 세계시계를 하나에. 위젯으로 빠르게 확인하세요.</p>
+                <div class="platform-badges">
+                    <span class="platform-badge">
+                        <svg viewBox="0 0 24 24"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3h13A2.5 2.5 0 0 1 21 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 18.5v-13z"/></svg>
+                        Windows
+                    </span>
+                    <span class="platform-badge">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z"/></svg>
+                        macOS
+                    </span>
+                    <span class="platform-badge">
+                        <svg viewBox="0 0 24 24"><path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85-.29-.15-.65-.06-.83.22l-1.88 3.24a11.463 11.463 0 0 0-8.94 0L5.65 5.67c-.19-.29-.54-.38-.84-.22-.3.16-.42.54-.26.85L6.4 9.48A10.78 10.78 0 0 0 1 18h22a10.78 10.78 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>
+                        Android
+                    </span>
+                    <span class="platform-badge">
+                        <svg viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83z"/></svg>
+                        iOS
+                    </span>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -894,6 +1015,8 @@
                 'screen-desc': '매일 새로운 영감을 주는 배경화면. 자동 변경, 시간대별 테마를 지원합니다.',
                 'cal-subtitle': '캘린더 위젯',
                 'cal-desc': '한눈에 보는 깔끔한 캘린더 위젯. 일정 확인과 D-day 카운트를 지원합니다.',
+                'alarm-subtitle': '알람 & 타이머',
+                'alarm-desc': '알람시계, 스톱워치, 타이머, 세계시계를 하나에. 위젯으로 빠르게 확인하세요.',
                 'features-title': '일상의 균형을 완성하는 디지털 생태계',
                 'features-desc': '작지만 단단한, 일상의 동반자',
                 'feature-simple-title': '간단한 설정',
@@ -927,6 +1050,8 @@
                 'screen-desc': 'Wallpapers that inspire daily. Auto-change and time-based themes supported.',
                 'cal-subtitle': 'Calendar Widget',
                 'cal-desc': 'Clean calendar widget at a glance. Schedule check and D-day countdown supported.',
+                'alarm-subtitle': 'Alarm & Timer',
+                'alarm-desc': 'Alarm clock, stopwatch, timer, and world clock in one. Check quickly with widgets.',
                 'features-title': 'a digital ecosystem for balanced living',
                 'features-desc': 'Small but solid, your daily companion',
                 'feature-simple-title': 'Simple Setup',
@@ -974,6 +1099,18 @@
             currentLang = savedLang;
             document.getElementById('lang-text').textContent = currentLang === 'ko' ? 'EN' : 'KO';
             applyTranslations();
+
+            // Card mouse tracking effect
+            const cards = document.querySelectorAll('.app-card');
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width) * 100;
+                    const y = ((e.clientY - rect.top) / rect.height) * 100;
+                    card.style.setProperty('--mouse-x', x + '%');
+                    card.style.setProperty('--mouse-y', y + '%');
+                });
+            });
         });
     </script>
 </body>
