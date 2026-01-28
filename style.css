@@ -410,6 +410,7 @@ header {
 .app-card[data-app="screen"] { --card-accent: var(--accent-sage); }
 .app-card[data-app="cal"] { --card-accent: var(--accent-sage-light); }
 .app-card[data-app="alarm"] { --card-accent: var(--accent-sage-dark); }
+.app-card[data-app="system-morning"] { --card-accent: var(--accent-sage); }
 
 .app-icon {
     width: 64px;
