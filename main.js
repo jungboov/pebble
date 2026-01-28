@@ -129,14 +129,6 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// GitHub Authentication
-function githubLogin() {
-    // GitHub OAuth 로그인
-    // 참고: 실제 사용시 GitHub OAuth App 등록 필요
-    const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=repo&redirect_uri=${encodeURIComponent(window.location.origin + window.location.pathname)}`;
-    window.location.href = authUrl;
-}
-
 async function checkGitHubAuth() {
     if (githubToken) {
         try {
