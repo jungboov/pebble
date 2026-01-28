@@ -1107,6 +1107,60 @@ footer {
     line-height: 1.8;
 }
 
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.post-header h1 {
+    flex: 1;
+}
+
+.post-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-edit {
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--accent-sage);
+    color: white;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-edit:hover {
+    background: var(--accent-sage-dark);
+    transform: scale(1.05);
+}
+
+.btn-delete {
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: #ff6b6b;
+    color: white;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-delete:hover {
+    background: #ee5a5a;
+    transform: scale(1.05);
+}
+
 .post-content h1 {
     font-size: 1.75rem;
     font-weight: 700;

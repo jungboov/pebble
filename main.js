@@ -236,15 +236,179 @@ async function viewPost(postId) {
             const date = lines[1].replace(/^>\s*/, '');
             const body = lines.slice(3).join('\n');
             
+            // 수정/삭제 버튼은 로그인한 본인만 보이게
+            const actionBtns = (currentUser && currentUser.login === GITHUB_OWNER) 
+                ? `<div class="post-actions">
+                    <button class="btn-edit" onclick="editPost('${postId}', '${data.sha}')">✏️ 수정</button>
+                    <button class="btn-delete" onclick="deletePost('${postId}', '${data.sha}')">🗑️ 삭제</button>
+                   </div>` 
+                : '';
+            
             postContent.innerHTML = `
-                <h1>${title}</h1>
+                <div class="post-header">
+                    <h1>${title}</h1>
+                    ${actionBtns}
+                </div>
                 <div class="post-content-meta">${date}</div>
-                <div>${markdownToHtml(body)}</div>
+                <div class="post-body">${markdownToHtml(body)}</div>
             `;
+            
+            // 수정용 데이터 저장
+            postContent.dataset.postId = postId;
+            postContent.dataset.sha = data.sha;
+            postContent.dataset.title = title;
+            postContent.dataset.body = body;
+            postContent.dataset.date = date;
         }
     } catch (error) {
         console.error('Error loading post:', error);
         postContent.innerHTML = '<div class="blog-empty">글을 불러올 수 없습니다.</div>';
+    }
+}
+
+function editPost(postId, sha) {
+    const postContent = document.getElementById('post-content');
+    const title = postContent.dataset.title;
+    const body = postContent.dataset.body;
+    const date = postContent.dataset.date;
+    
+    // 수정 폼으로 변경
+    postContent.innerHTML = `
+        <div class="write-form">
+            <input type="text" id="edit-title" class="write-input" value="${title.replace(/"/g, '&quot;')}" placeholder="제목을 입력하세요">
+            <textarea id="edit-body" class="write-textarea" placeholder="내용을 입력하세요 (마크다운 지원)">${body}</textarea>
+            <div class="write-actions">
+                <button class="btn-cancel" onclick="viewPost('${postId}')">취소</button>
+                <button class="btn-publish" onclick="updatePost('${postId}', '${sha}', '${date}')">수정 완료</button>
+            </div>
+        </div>
+    `;
+}
+
+async function updatePost(postId, sha, originalDate) {
+    const title = document.getElementById('edit-title').value.trim();
+    const body = document.getElementById('edit-body').value.trim();
+
+    if (!title || !body) {
+        alert('제목과 내용을 모두 입력해주세요.');
+        return;
+    }
+
+    if (!githubToken) {
+        alert('GitHub 로그인이 필요합니다.');
+        return;
+    }
+
+    // 수정 시간 추가
+    const now = new Date();
+    const editTime = `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    const dateWithEdit = `${originalDate} (수정: ${editTime})`;
+    
+    const postContent = `# ${title}\n> ${dateWithEdit}\n\n${body}`;
+
+    try {
+        // 포스트 파일 업데이트
+        await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${postId}.md`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${githubToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: `Update blog post: ${title}`,
+                content: btoa(unescape(encodeURIComponent(postContent))),
+                sha: sha
+            })
+        });
+
+        // posts.json에서 제목 업데이트
+        const postsResponse = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/posts.json`);
+        if (postsResponse.ok) {
+            const postsData = await postsResponse.json();
+            let posts = JSON.parse(atob(postsData.content));
+            posts = posts.map(post => {
+                if (post.id === postId) {
+                    return { ...post, title: title };
+                }
+                return post;
+            });
+
+            await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/posts.json`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${githubToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: `Update post title in list`,
+                    content: btoa(unescape(encodeURIComponent(JSON.stringify(posts, null, 2)))),
+                    sha: postsData.sha
+                })
+            });
+        }
+
+        alert('글이 수정되었습니다!');
+        viewPost(postId);
+        
+    } catch (error) {
+        console.error('Error updating post:', error);
+        alert('글 수정 중 오류가 발생했습니다.');
+    }
+}
+
+async function deletePost(postId, fileSha) {
+    if (!confirm('정말 이 글을 삭제하시겠습니까?')) {
+        return;
+    }
+
+    if (!githubToken) {
+        alert('GitHub 로그인이 필요합니다.');
+        return;
+    }
+
+    try {
+        // 1. 포스트 파일 삭제
+        await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${postId}.md`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `token ${githubToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: `Delete blog post: ${postId}`,
+                sha: fileSha
+            })
+        });
+
+        // 2. posts.json에서 해당 글 제거
+        const postsResponse = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/posts.json`);
+        if (postsResponse.ok) {
+            const postsData = await postsResponse.json();
+            let posts = JSON.parse(atob(postsData.content));
+            posts = posts.filter(post => post.id !== postId);
+
+            await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/posts.json`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${githubToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: `Remove deleted post from list`,
+                    content: btoa(unescape(encodeURIComponent(JSON.stringify(posts, null, 2)))),
+                    sha: postsData.sha
+                })
+            });
+        }
+
+        alert('글이 삭제되었습니다.');
+        closeModal('post');
+        openModal('blog');
+        loadBlogPosts();
+        
+    } catch (error) {
+        console.error('Error deleting post:', error);
+        alert('글 삭제 중 오류가 발생했습니다.');
     }
 }
 
