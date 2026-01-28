@@ -129,6 +129,14 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// GitHub Authentication
+function githubLogin() {
+    // GitHub OAuth 로그인
+    // 참고: 실제 사용시 GitHub OAuth App 등록 필요
+    const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=repo&redirect_uri=${encodeURIComponent(window.location.origin + window.location.pathname)}`;
+    window.location.href = authUrl;
+}
+
 async function checkGitHubAuth() {
     if (githubToken) {
         try {
@@ -265,13 +273,11 @@ async function publishPost() {
     }
 
     const postId = 'post-' + Date.now();
-    const date = new Date().toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
+    const now = new Date();
+    const date = `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일`;
+    const dateTime = `${date} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
     
-    const postContent = `# ${title}\n> ${date}\n\n${body}`;
+    const postContent = `# ${title}\n> ${dateTime}\n\n${body}`;
 
     try {
         // 1. 포스트 파일 생성
@@ -300,7 +306,7 @@ async function publishPost() {
             }
         } catch (e) {}
 
-        posts.unshift({ id: postId, title: title, date: date });
+        posts.unshift({ id: postId, title: title, date: date, dateTime: dateTime });
 
         await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/posts.json`, {
             method: 'PUT',
