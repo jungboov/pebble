@@ -109,13 +109,21 @@ function closeModal(name) {
     document.body.style.overflow = '';
 }
 
-// Close modal on overlay click
+// Close modal on overlay click (not on drag)
+let mouseDownTarget = null;
+
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) {
+    overlay.addEventListener('mousedown', (e) => {
+        mouseDownTarget = e.target;
+    });
+    
+    overlay.addEventListener('mouseup', (e) => {
+        // 마우스 다운과 업 모두 오버레이에서 발생했을 때만 닫기
+        if (e.target === overlay && mouseDownTarget === overlay) {
             overlay.classList.remove('active');
             document.body.style.overflow = '';
         }
+        mouseDownTarget = null;
     });
 });
 
