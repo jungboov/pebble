@@ -5,6 +5,16 @@ const GITHUB_REPO = 'pebble';
 let githubToken = localStorage.getItem('github_token');
 let currentUser = null;
 
+// UTF-8 지원 base64 디코딩
+function decodeBase64UTF8(base64) {
+    const binaryString = atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    return new TextDecoder('utf-8').decode(bytes);
+}
+
 // GitHub Authentication - Personal Access Token 방식
 function githubLogin() {
     const token = prompt('GitHub Personal Access Token을 입력하세요:\n\n발급 방법:\n1. GitHub → Settings → Developer settings\n2. Personal access tokens → Tokens (classic)\n3. Generate new token → repo 권한 체크\n4. 생성된 토큰 복사');
@@ -203,7 +213,7 @@ async function loadBlogPosts() {
         
         if (response.ok) {
             const data = await response.json();
-            const posts = JSON.parse(atob(data.content));
+            const posts = JSON.parse(decodeBase64UTF8(data.content));
             
             if (posts.length === 0) {
                 blogList.innerHTML = '<div class="blog-empty">아직 작성된 글이 없습니다.</div>';
@@ -236,7 +246,7 @@ async function viewPost(postId) {
         
         if (response.ok) {
             const data = await response.json();
-            const content = atob(data.content);
+            const content = decodeBase64UTF8(data.content);
             
             // 간단한 마크다운 파싱
             const lines = content.split('\n');
@@ -333,7 +343,7 @@ async function updatePost(postId, sha, originalDate) {
         const postsResponse = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/blog/posts.json`);
         if (postsResponse.ok) {
             const postsData = await postsResponse.json();
-            let posts = JSON.parse(atob(postsData.content));
+            let posts = JSON.parse(decodeBase64UTF8(postsData.content));
             posts = posts.map(post => {
                 if (post.id === postId) {
                     return { ...post, title: title };
@@ -392,7 +402,7 @@ async function deletePost(postId, fileSha) {
         const postsResponse = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/blog/posts.json`);
         if (postsResponse.ok) {
             const postsData = await postsResponse.json();
-            let posts = JSON.parse(atob(postsData.content));
+            let posts = JSON.parse(decodeBase64UTF8(postsData.content));
             posts = posts.filter(post => post.id !== postId);
 
             await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/blog/posts.json`, {
@@ -473,7 +483,7 @@ async function publishPost() {
             const postsResponse = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/blog/posts.json`);
             if (postsResponse.ok) {
                 const postsData = await postsResponse.json();
-                posts = JSON.parse(atob(postsData.content));
+                posts = JSON.parse(decodeBase64UTF8(postsData.content));
                 postsSha = postsData.sha;
             }
         } catch (e) {}
