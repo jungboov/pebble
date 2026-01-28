@@ -484,16 +484,4 @@ document.addEventListener('DOMContentLoaded', () => {
     currentLang = savedLang;
     document.getElementById('lang-text').textContent = currentLang === 'ko' ? 'EN' : 'KO';
     applyTranslations();
-
-    // Card mouse tracking effect
-    const cards = document.querySelectorAll('.app-card');
-    cards.forEach(card => {
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = ((e.clientX - rect.left) / rect.width) * 100;
-            const y = ((e.clientY - rect.top) / rect.height) * 100;
-            card.style.setProperty('--mouse-x', x + '%');
-            card.style.setProperty('--mouse-y', y + '%');
-        });
-    });
 });

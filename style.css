@@ -49,7 +49,8 @@ body {
     overflow-x: hidden;
 }
 
-/* Grain Texture Overlay */
+/* Grain Texture Overlay - disabled for performance */
+/*
 body::before {
     content: '';
     position: fixed;
@@ -62,6 +63,7 @@ body::before {
     pointer-events: none;
     z-index: 1000;
 }
+*/
 
 /* Header */
 header {
@@ -168,8 +170,9 @@ header {
 .pebble-deco {
     position: absolute;
     border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-    opacity: 0.15;
-    animation: drift 20s ease-in-out infinite;
+    opacity: 0.12;
+    will-change: transform;
+    animation: drift 30s ease-in-out infinite;
 }
 
 .pebble-deco:nth-child(1) {
@@ -187,7 +190,7 @@ header {
     background: var(--accent-sage-light);
     top: 60%;
     right: -3%;
-    animation-delay: -5s;
+    animation-delay: -7s;
 }
 
 .pebble-deco:nth-child(3) {
@@ -196,7 +199,7 @@ header {
     background: var(--accent-sage-dark);
     bottom: 10%;
     left: 10%;
-    animation-delay: -10s;
+    animation-delay: -15s;
 }
 
 .pebble-deco:nth-child(4) {
@@ -205,14 +208,12 @@ header {
     background: var(--accent-sage);
     top: 20%;
     right: 15%;
-    animation-delay: -15s;
+    animation-delay: -22s;
 }
 
 @keyframes drift {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    25% { transform: translate(20px, -20px) rotate(5deg); }
-    50% { transform: translate(-10px, 10px) rotate(-3deg); }
-    75% { transform: translate(15px, 15px) rotate(3deg); }
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(15px, -15px); }
 }
 
 .hero-content {
@@ -380,13 +381,9 @@ header {
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(
-        800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-        rgba(143, 166, 143, 0.06),
-        transparent 40%
-    );
+    background: linear-gradient(135deg, rgba(143, 166, 143, 0.05), transparent);
     opacity: 0;
-    transition: opacity 0.4s ease;
+    transition: opacity 0.2s ease;
     pointer-events: none;
 }
 
@@ -399,40 +396,13 @@ header {
 }
 
 .app-card:hover {
-    transform: translateY(-12px) rotateX(2deg);
+    transform: translateY(-8px);
     box-shadow: 
-        0 20px 40px rgba(61, 61, 61, 0.15),
-        0 0 0 1px rgba(143, 166, 143, 0.2),
-        0 0 60px rgba(143, 166, 143, 0.1);
+        0 12px 30px rgba(61, 61, 61, 0.12),
+        0 0 0 1px rgba(143, 166, 143, 0.2);
 }
 
-.app-card .card-glow {
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: conic-gradient(
-        from 0deg,
-        transparent,
-        var(--card-accent),
-        transparent 30%
-    );
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    animation: rotate 4s linear infinite paused;
-    pointer-events: none;
-}
-
-.app-card:hover .card-glow {
-    opacity: 0.1;
-    animation-play-state: running;
-}
-
-@keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
+/* card-glow removed for performance */
 
 .app-card[data-app="tap-mouse"] { --card-accent: var(--accent-sage); }
 .app-card[data-app="tap-keyboard"] { --card-accent: var(--accent-sage-light); }
@@ -877,11 +847,10 @@ footer {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(2px);
+    background: rgba(0, 0, 0, 0.4);
     opacity: 0;
     visibility: hidden;
-    transition: all 0.2s ease;
+    transition: opacity 0.2s ease;
     z-index: 190;
 }
 
@@ -953,14 +922,13 @@ footer {
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 400;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s ease;
+    transition: opacity 0.2s ease;
     padding: 20px;
 }
 
