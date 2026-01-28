@@ -191,7 +191,7 @@ async function loadBlogPosts() {
 
     try {
         // GitHub에서 posts.json 가져오기
-        const response = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/blog/posts.json`);
+        const response = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/posts.json`);
         
         if (response.ok) {
             const data = await response.json();
@@ -224,7 +224,7 @@ async function viewPost(postId) {
     postContent.innerHTML = '<div class="blog-loading">글을 불러오는 중...</div>';
 
     try {
-        const response = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/blog/${postId}.md`);
+        const response = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${postId}.md`);
         
         if (response.ok) {
             const data = await response.json();
@@ -283,7 +283,7 @@ async function publishPost() {
 
     try {
         // 1. 포스트 파일 생성
-        await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/blog/${postId}.md`, {
+        await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${postId}.md`, {
             method: 'PUT',
             headers: {
                 'Authorization': `token ${githubToken}`,
@@ -300,7 +300,7 @@ async function publishPost() {
         let postsSha = null;
         
         try {
-            const postsResponse = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/blog/posts.json`);
+            const postsResponse = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/posts.json`);
             if (postsResponse.ok) {
                 const postsData = await postsResponse.json();
                 posts = JSON.parse(atob(postsData.content));
@@ -310,7 +310,7 @@ async function publishPost() {
 
         posts.unshift({ id: postId, title: title, date: date });
 
-        await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/blog/posts.json`, {
+        await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/posts.json`, {
             method: 'PUT',
             headers: {
                 'Authorization': `token ${githubToken}`,
