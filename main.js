@@ -16,25 +16,36 @@ function githubLogin() {
     }
 }
 
-// Floating Action Button
+// Floating Action Button - Circle Menu
 function toggleFabMenu() {
     const fab = document.querySelector('.fab');
     const menu = document.getElementById('fab-menu');
+    const backdrop = document.getElementById('fab-backdrop');
+    
     fab.classList.toggle('active');
     menu.classList.toggle('active');
+    backdrop.classList.toggle('active');
+}
+
+function closeFabMenu() {
+    const fab = document.querySelector('.fab');
+    const menu = document.getElementById('fab-menu');
+    const backdrop = document.getElementById('fab-backdrop');
+    
+    fab.classList.remove('active');
+    menu.classList.remove('active');
+    backdrop.classList.remove('active');
 }
 
 function closeFabAndGo(section) {
-    document.querySelector('.fab').classList.remove('active');
-    document.getElementById('fab-menu').classList.remove('active');
+    closeFabMenu();
     if (section === 'home') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
 
 function closeFabAndOpen(modalName) {
-    document.querySelector('.fab').classList.remove('active');
-    document.getElementById('fab-menu').classList.remove('active');
+    closeFabMenu();
     openModal(modalName);
 }
 
@@ -45,14 +56,8 @@ function closeContextAndGo(section) {
     }
 }
 
-// Close FAB menu when clicking outside
-document.addEventListener('click', (e) => {
-    const fabContainer = document.querySelector('.fab-container');
-    if (fabContainer && !fabContainer.contains(e.target)) {
-        document.querySelector('.fab').classList.remove('active');
-        document.getElementById('fab-menu').classList.remove('active');
-    }
-});
+// Close FAB menu when clicking outside (handled by backdrop now)
+// Keep for safety
 
 // Context Menu (Right Click)
 const contextMenu = document.getElementById('context-menu');

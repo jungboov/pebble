@@ -203,8 +203,18 @@
         </div>
     </section>
 
-    <!-- Floating Menu Button -->
+    <!-- Backdrop for FAB menu -->
+    <div class="fab-backdrop" id="fab-backdrop" onclick="closeFabMenu()"></div>
+
+    <!-- Floating Circle Menu -->
     <div class="fab-container">
+        <div class="fab-menu" id="fab-menu">
+            <a href="#" class="fab-item" onclick="closeFabAndGo('home')">🏠<span>홈</span></a>
+            <a href="#apps" class="fab-item" onclick="closeFabAndGo('apps')">📱<span>앱</span></a>
+            <a href="#" class="fab-item" onclick="closeFabAndOpen('blog')">📝<span>블로그</span></a>
+            <a href="#" class="fab-item" onclick="closeFabAndOpen('contact')">💬<span>문의</span></a>
+            <a href="#" class="fab-item" onclick="closeFabAndOpen('privacy')">🔒<span>개인정보</span></a>
+        </div>
         <button class="fab" onclick="toggleFabMenu()" aria-label="메뉴 열기">
             <svg class="fab-icon" viewBox="0 0 24 24">
                 <circle cx="12" cy="6" r="3"/>
@@ -215,13 +225,6 @@
                 <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
         </button>
-        <div class="fab-menu" id="fab-menu">
-            <a href="#" class="fab-item" onclick="closeFabAndGo('home')">홈</a>
-            <a href="#apps" class="fab-item" onclick="closeFabAndGo('apps')">앱</a>
-            <a href="#" class="fab-item" onclick="closeFabAndOpen('blog')">블로그</a>
-            <a href="#" class="fab-item" onclick="closeFabAndOpen('contact')">문의</a>
-            <a href="#" class="fab-item" onclick="closeFabAndOpen('privacy')">개인정보</a>
-        </div>
     </div>
 
     <!-- Context Menu (Right Click) -->
