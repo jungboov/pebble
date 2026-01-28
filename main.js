@@ -1,10 +1,20 @@
 // GitHub Configuration
 const GITHUB_OWNER = 'jungboov';
 const GITHUB_REPO = 'pebble';
-const GITHUB_CLIENT_ID = 'YOUR_GITHUB_CLIENT_ID'; // GitHub OAuth App에서 발급받아야 함
 
 let githubToken = localStorage.getItem('github_token');
 let currentUser = null;
+
+// GitHub Authentication - Personal Access Token 방식
+function githubLogin() {
+    const token = prompt('GitHub Personal Access Token을 입력하세요:\n\n발급 방법:\n1. GitHub → Settings → Developer settings\n2. Personal access tokens → Tokens (classic)\n3. Generate new token → repo 권한 체크\n4. 생성된 토큰 복사');
+    
+    if (token) {
+        localStorage.setItem('github_token', token);
+        githubToken = token;
+        checkGitHubAuth();
+    }
+}
 
 // Floating Action Button
 function toggleFabMenu() {
@@ -123,23 +133,6 @@ function githubLogin() {
 }
 
 async function checkGitHubAuth() {
-    // URL에서 code 파라미터 확인 (OAuth 콜백)
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    
-    if (code && !githubToken) {
-        // 실제로는 백엔드에서 토큰 교환 필요
-        // GitHub Pages에서는 Personal Access Token 사용 권장
-        alert('GitHub OAuth는 백엔드가 필요합니다.\n\nPersonal Access Token을 사용하려면:\n1. GitHub Settings > Developer settings > Personal access tokens\n2. Generate new token (repo 권한 필요)\n3. 토큰을 복사해서 아래 프롬프트에 입력');
-        
-        const token = prompt('GitHub Personal Access Token을 입력하세요:');
-        if (token) {
-            localStorage.setItem('github_token', token);
-            githubToken = token;
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
-    }
-
     if (githubToken) {
         try {
             const response = await fetch('https://api.github.com/user', {
@@ -159,9 +152,10 @@ async function checkGitHubAuth() {
                     document.getElementById('user-info').innerHTML = `
                         <img src="${currentUser.avatar_url}" alt="${currentUser.login}">
                         ${currentUser.login}
+                        <button onclick="githubLogout()" style="margin-left:8px;padding:4px 8px;border:none;background:#ff6b6b;color:white;border-radius:4px;cursor:pointer;font-size:0.8rem;">로그아웃</button>
                     `;
                 } else {
-                    document.getElementById('btn-github-login').textContent = '권한 없음';
+                    document.getElementById('btn-github-login').textContent = '권한 없음 (다른 계정)';
                     document.getElementById('btn-github-login').disabled = true;
                 }
             } else {
@@ -172,6 +166,17 @@ async function checkGitHubAuth() {
             console.error('GitHub auth error:', error);
         }
     }
+}
+
+function githubLogout() {
+    localStorage.removeItem('github_token');
+    githubToken = null;
+    currentUser = null;
+    document.getElementById('btn-write').style.display = 'none';
+    document.getElementById('btn-github-login').style.display = 'block';
+    document.getElementById('btn-github-login').textContent = 'GitHub 로그인';
+    document.getElementById('btn-github-login').disabled = false;
+    document.getElementById('user-info').style.display = 'none';
 }
 
 // Blog Functions
